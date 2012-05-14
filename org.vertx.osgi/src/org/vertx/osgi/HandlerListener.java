@@ -92,7 +92,7 @@ final class HandlerListener {
                     Handler<HttpServerRequest> handler = (Handler<HttpServerRequest>) this.bundleContext.getService(handlerServiceReference);
                     try {
                         HttpServer httpServer = registerHandler(portNumber, handler);
-                        httpServer.listen(portNumber);
+                        listen(httpServer, portNumber);
                     } finally {
                         this.bundleContext.ungetService(serviceReference);
                     }
@@ -106,12 +106,20 @@ final class HandlerListener {
                     Handler<SockJSSocket> handler = (Handler<SockJSSocket>) this.bundleContext.getService(handlerServiceReference);
                     try {
                         HttpServer httpServer = registerHandler(portNumber, null);
+                        Handler<HttpServerRequest> existingRequestHandler = httpServer.requestHandler();
+                        try {
+                            httpServer.close();
+                        } catch (Exception _) {
+                        }
+                        if (existingRequestHandler != null) {
+                            httpServer.requestHandler(existingRequestHandler);
+                        }
 
                         SockJSServer sockServer = this.vertx.createSockJSServer(httpServer);
 
                         sockServer.installApp(new JsonObject().putString("prefix", getHandlerPrefix(handlerServiceReference)), handler);
 
-                        httpServer.listen(portNumber);
+                        listen(httpServer, portNumber);
                     } finally {
                         this.bundleContext.ungetService(serviceReference);
                     }
@@ -120,6 +128,14 @@ final class HandlerListener {
                 break;
             default:
                 ;
+        }
+    }
+
+    private void listen(HttpServer httpServer, int portNumber) {
+        try {
+            httpServer.listen(portNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
