@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Tool: Bundlor 1.1.0.M04
+Bundle-Name: Basic
+Bundle-SymbolicName: org.vertx.osgi.sample.basic
+Import-Package: org.vertx.java.core,
+ org.vertx.java.core.buffer,
+ org.vertx.java.core.sockjs,
+ org.vertx.java.core.streams
+Export-Package: org.vertx.osgi.sample.sockjs;uses:="org.vertx.java.core,org.vertx.java.core.buffer,org.vertx.java.core.sockjs",
+ webroot
+Bundle-Version: 1.0.0
+Bundle-ManifestVersion: 2

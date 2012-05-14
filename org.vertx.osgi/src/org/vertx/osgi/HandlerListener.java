@@ -28,6 +28,9 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.sockjs.SockJSServer;
+import org.vertx.java.core.sockjs.SockJSSocket;
 
 final class HandlerListener {
 
@@ -81,17 +84,42 @@ final class HandlerListener {
     private void registerHandlerIfNecessary(ServiceReference<?> serviceReference) {
         @SuppressWarnings({ "unchecked" })
         ServiceReference<Handler<?>> handlerServiceReference = (ServiceReference<Handler<?>>) serviceReference;
-        if ("HttpServerRequestHandler".equals(getHandlerType(handlerServiceReference))) {
-            int portNumber = getHandlerPortNumber(handlerServiceReference);
-            if (portNumber != 0) {
-                @SuppressWarnings("unchecked")
-                Handler<HttpServerRequest> handler = (Handler<HttpServerRequest>) this.bundleContext.getService(handlerServiceReference);
-                try {
-                    registerHandler(portNumber, handler);
-                } finally {
-                    this.bundleContext.ungetService(serviceReference);
+        switch (getHandlerType(handlerServiceReference)) {
+            case "HttpServerRequestHandler": {
+                int portNumber = getHandlerPortNumber(handlerServiceReference);
+                if (portNumber != 0) {
+                    @SuppressWarnings("unchecked")
+                    Handler<HttpServerRequest> handler = (Handler<HttpServerRequest>) this.bundleContext.getService(handlerServiceReference);
+                    try {
+                        HttpServer httpServer = registerHandler(portNumber, handler);
+                        httpServer.listen(portNumber);
+                    } finally {
+                        this.bundleContext.ungetService(serviceReference);
+                    }
                 }
             }
+                break;
+            case "SockJSHandler": {
+                int portNumber = getHandlerPortNumber(handlerServiceReference);
+                if (portNumber != 0) {
+                    @SuppressWarnings("unchecked")
+                    Handler<SockJSSocket> handler = (Handler<SockJSSocket>) this.bundleContext.getService(handlerServiceReference);
+                    try {
+                        HttpServer httpServer = registerHandler(portNumber, null);
+
+                        SockJSServer sockServer = this.vertx.createSockJSServer(httpServer);
+
+                        sockServer.installApp(new JsonObject().putString("prefix", getHandlerPrefix(handlerServiceReference)), handler);
+
+                        httpServer.listen(portNumber);
+                    } finally {
+                        this.bundleContext.ungetService(serviceReference);
+                    }
+                }
+            }
+                break;
+            default:
+                ;
         }
     }
 
@@ -109,11 +137,20 @@ final class HandlerListener {
         return portNumber;
     }
 
-    private void registerHandler(int portNumber, Handler<HttpServerRequest> handler) {
+    private String getHandlerPrefix(ServiceReference<Handler<?>> serviceReference) {
+        Object handlerPrefix = serviceReference.getProperty("prefix");
+        return handlerPrefix instanceof String ? (String) handlerPrefix : null;
+    }
+
+    private HttpServer registerHandler(int portNumber, Handler<HttpServerRequest> handler) {
         HttpServer httpServer = getHttpServer(portNumber);
         try {
-            httpServer.requestHandler(handler).listen(portNumber);
+            if (handler != null) {
+                httpServer.requestHandler(handler);
+            }
+            return httpServer;
         } catch (Exception e) {
+            return null;
         }
     }
 
