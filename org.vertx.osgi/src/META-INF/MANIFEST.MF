@@ -1,9 +1,13 @@
 Manifest-Version: 1.0
+Export-Package: org.vertx.osgi;uses:="org.osgi.framework,org.osgi.util
+ .tracker,org.vertx.java.core"
 Bundle-Version: 0.0.1
+Tool: Bundlor 1.1.0.M04
 Bundle-Name: org.vertx.osgi
 Bundle-ManifestVersion: 2
+Bundle-Activator: org.vertx.osgi.Activator
 Bundle-Description: Binding of vert.x to the OSGi service registry
 Bundle-SymbolicName: org.vertx.osgi
-Import-Package: org.osgi.framework,org.osgi.util.tracker,org.vertx.java.core,org.vertx.java.core.http,org.vertx.java.core.impl
-Bundle-Activator: org.vertx.osgi.Activator
+Import-Package: org.osgi.framework,org.osgi.util.tracker,org.vertx.jav
+ a.core,org.vertx.java.core.http,org.vertx.java.core.impl
 
