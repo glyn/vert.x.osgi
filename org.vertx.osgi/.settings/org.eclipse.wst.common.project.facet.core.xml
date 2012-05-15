@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faceted-project>
-  <runtime name="Virgo Kernel"/>
+  <runtime name="Virgo Kernel 3.5.0.M04"/>
   <installed facet="org.eclipse.virgo.server.bundle" version="1.0"/>
 </faceted-project>
