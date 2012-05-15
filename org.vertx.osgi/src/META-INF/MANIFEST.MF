@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-Version: 0.0.1
+Bundle-Name: org.vertx.osgi
+Bundle-ManifestVersion: 2
+Bundle-Description: Binding of vert.x to the OSGi service registry
+Bundle-SymbolicName: org.vertx.osgi
+Import-Package: org.osgi.framework,org.vertx.java.core,org.vertx.java.core.http,org.vertx.java.core.impl
+Bundle-Activator: org.vertx.osgi.Activator
+

@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/enabled=true
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/isSystem=false
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/name=file\:/Users/cgfrost/Repos/eclipse/bundlor/build-bundlor/target/repository - metadata
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/suffix=content.xml
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/type=org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/uri=file\:/Users/cgfrost/Repos/eclipse/bundlor/build-bundlor/target/repository
+repositories/file\:_Users_cgfrost_Repos_eclipse_bundlor_build-bundlor_target_repository/version=1.0.0
