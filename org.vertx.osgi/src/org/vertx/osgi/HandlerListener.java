@@ -16,6 +16,9 @@
 
 package org.vertx.osgi;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -88,13 +91,18 @@ final class HandlerListener {
             case "HttpServerRequestHandler": {
                 int portNumber = getHandlerPortNumber(handlerServiceReference);
                 if (portNumber != 0) {
-                    @SuppressWarnings("unchecked")
-                    Handler<HttpServerRequest> handler = (Handler<HttpServerRequest>) this.bundleContext.getService(handlerServiceReference);
-                    try {
-                        HttpServer httpServer = registerHandler(portNumber, handler);
-                        listen(httpServer, portNumber);
-                    } finally {
-                        this.bundleContext.ungetService(serviceReference);
+                    String usage = getHandlerUsage(handlerServiceReference);
+                    if ("SockJS".equals(usage)) {
+                        sockJSHandlerAdded(portNumber, handlerServiceReference, null);
+                    } else {
+                        @SuppressWarnings("unchecked")
+                        Handler<HttpServerRequest> handler = (Handler<HttpServerRequest>) this.bundleContext.getService(handlerServiceReference);
+                        try {
+                            HttpServer httpServer = registerHandler(portNumber, handler);
+                            listen(httpServer, portNumber);
+                        } finally {
+                            this.bundleContext.ungetService(serviceReference);
+                        }
                     }
                 }
             }
@@ -102,33 +110,85 @@ final class HandlerListener {
             case "SockJSHandler": {
                 int portNumber = getHandlerPortNumber(handlerServiceReference);
                 if (portNumber != 0) {
-                    @SuppressWarnings("unchecked")
-                    Handler<SockJSSocket> handler = (Handler<SockJSSocket>) this.bundleContext.getService(handlerServiceReference);
-                    try {
-                        HttpServer httpServer = registerHandler(portNumber, null);
-                        Handler<HttpServerRequest> existingRequestHandler = httpServer.requestHandler();
-                        try {
-                            httpServer.close();
-                        } catch (Exception _) {
-                        }
-                        if (existingRequestHandler != null) {
-                            httpServer.requestHandler(existingRequestHandler);
-                        }
-
-                        SockJSServer sockServer = this.vertx.createSockJSServer(httpServer);
-
-                        sockServer.installApp(new JsonObject().putString("prefix", getHandlerPrefix(handlerServiceReference)), handler);
-
-                        listen(httpServer, portNumber);
-                    } finally {
-                        this.bundleContext.ungetService(serviceReference);
-                    }
+                    sockJSHandlerAdded(portNumber, null, handlerServiceReference);
                 }
             }
                 break;
             default:
                 ;
         }
+    }
+
+    /*
+     * The following method is called when either a HTTP handler (for use with SockJS) or a SockJS handler has been
+     * added. Null is typically passed in as the other service reference. If there is a matching pair, then a suitable
+     * server is created and set up. If either or both are missing, then there is no change of state.
+     */
+    @SuppressWarnings("unchecked")
+    private void sockJSHandlerAdded(int portNumber, ServiceReference<Handler<?>> httpHandlerServiceReference,
+        ServiceReference<Handler<?>> sockJSHandlerServiceReference) {
+
+        Set<ServiceReference<?>> sockJSHandlerRefs = findHandlerRefs(portNumber, "(type=SockJSHandler)");
+        if (sockJSHandlerServiceReference != null) {
+            sockJSHandlerRefs.add(sockJSHandlerServiceReference);
+        }
+
+        Set<ServiceReference<?>> httpHandlerRefs = findHandlerRefs(portNumber, "(&(type=HttpServerRequestHandler)(usage=SockJS))");
+        if (httpHandlerServiceReference != null) {
+            httpHandlerRefs.add(httpHandlerServiceReference);
+        }
+
+        if (sockJSHandlerRefs.size() == 1 && httpHandlerRefs.size() > 1) {
+            // Ambiguous HTTP handler
+        } else if (httpHandlerRefs.size() == 1 && sockJSHandlerRefs.size() > 1) {
+            // Ambiguous SockJS handler
+        } else if (httpHandlerRefs.size() == 1 && sockJSHandlerRefs.size() == 1) {
+            // One of each - proceed
+            ServiceReference<?> sRef = sockJSHandlerRefs.iterator().next();
+            ServiceReference<Handler<SockJSSocket>> sockJSRef = (ServiceReference<Handler<SockJSSocket>>) sRef;
+
+            ServiceReference<?> hRef = httpHandlerRefs.iterator().next();
+            ServiceReference<Handler<HttpServerRequest>> httpRef = (ServiceReference<Handler<HttpServerRequest>>) hRef;
+
+            Handler<SockJSSocket> sockJSHandler = (Handler<SockJSSocket>) this.bundleContext.getService(sockJSRef);
+            Handler<HttpServerRequest> httpHandler = (Handler<HttpServerRequest>) this.bundleContext.getService(httpRef);
+            try {
+                HttpServer httpServer = registerHandler(portNumber, httpHandler);
+
+                SockJSServer sockServer = this.vertx.createSockJSServer(httpServer);
+
+                sockServer.installApp(
+                    new JsonObject().putString("prefix", getHandlerPrefix((ServiceReference<Handler<?>>) (ServiceReference<?>) sockJSRef)),
+                    sockJSHandler);
+
+                listen(httpServer, portNumber);
+            } finally {
+                this.bundleContext.ungetService(sockJSRef);
+                this.bundleContext.ungetService(httpRef);
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Set<ServiceReference<?>> findHandlerRefs(int portNumber, String filter) {
+        Set<ServiceReference<?>> result = new HashSet<ServiceReference<?>>();
+        try {
+            Collection<ServiceReference<Handler>> refs = this.bundleContext.getServiceReferences(Handler.class, filter);
+            for (ServiceReference<Handler> ref : refs) {
+                if (portNumber == getHandlerPortNumber(ref)) {
+                    result.add((ServiceReference<?>) ref);
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            // Should never happen
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private String getHandlerUsage(ServiceReference<Handler<?>> handlerServiceReference) {
+        Object handlerUsage = handlerServiceReference.getProperty("usage");
+        return handlerUsage instanceof String ? (String) handlerUsage : null;
     }
 
     private void listen(HttpServer httpServer, int portNumber) {
@@ -144,7 +204,7 @@ final class HandlerListener {
         return handlerType instanceof String ? (String) handlerType : null;
     }
 
-    private int getHandlerPortNumber(ServiceReference<Handler<?>> handlerServiceReference) {
+    private int getHandlerPortNumber(ServiceReference<?> handlerServiceReference) {
         int portNumber = 0;
         Object port = handlerServiceReference.getProperty("port");
         if (port instanceof String) {
