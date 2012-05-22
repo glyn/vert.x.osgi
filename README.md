@@ -5,9 +5,11 @@ Experiment running vert.x core as an OSGi bundle in Virgo kernel.
 
 The bundle project org.vertx.osgi listens for Handler instances being published in the OSGi service registry and registers these with a suitable server (according to the service properties in the service registry).
 
-The bundle project org.vertx.osgi.sample.basic uses the OSGi Blueprint service to publish a Handler to the service registry.
+The bundle project org.vertx.osgi.sample.basic uses the OSGi Blueprint service to publish a HTTP request Handler to the service registry.
 
-The source code provided in this project is licensed under the Apache License, Version 2.0.
+The bundle project org.vertx.osgi.sample.sockjs uses the OSGi Blueprint service to publish HTTP request and sockjs Handlers to the service registry.
+
+The source code provided in this project is dual-licensed under the Eclipse Public License 1.0 and the Apache License, Version 2.0.
 
 Notes
 -----
