@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+	<service ref="httpHandler" interface="org.vertx.java.core.Handler">
+		<service-properties>
+		    <entry key="type" value="HttpServerRequestHandler"/>
+        	<entry key="port" value="8090"/>
+        	<entry key="protocol" value="http,sockjs"/>
+        </service-properties>
+	</service>
 	
-	<service ref="handler" interface="org.vertx.java.core.Handler">
+    <bean id="httpHandler" class="org.vertx.osgi.sample.sockjs.HttpServerRequestHandler"/>
+
+	<service ref="sockJSHandler" interface="org.vertx.java.core.Handler">
 		<service-properties>
 		    <entry key="type" value="SockJSHandler"/>
-		    <entry key="prefix" value="/testapp"
+		    <entry key="prefix" value="/testapp"/>
         	<entry key="port" value="8090"/>
         </service-properties>
 	</service>
 	
-    <bean id="handler" class="org.vertx.osgi.sample.sockjs.SockJSHandler"/>
-      
+    <bean id="sockJSHandler" class="org.vertx.osgi.sample.sockjs.SockJSHandler"/>     
+	
 </blueprint>
