@@ -180,15 +180,34 @@ public final class HttpServerRequestHandler implements Handler<HttpServerRequest
 
         @Override
         public Path resolve(Path other) {
-            URL resource = this.getClass().getClassLoader().getResource(other.toString());
-            try {
-                URI uri = resource.toURI();
-                return Paths.get(uri);
-            } catch (URISyntaxException e) {
+            if (other != null) {
+                URL resource = this.getClass().getClassLoader().getResource(other.toString());
+                if (resource != null) {
+                    try {
+                        URI uri = resource.toURI();
+                        return Paths.get(uri);
+                    } catch (URISyntaxException e) {
+                    }
+                } else {
+                    return createInvalidPath(other);
+                }
             }
             return null;
         }
 
+    }
+
+    public Path createInvalidPath(Path other) {
+        URL resource = this.getClass().getClassLoader().getResource(".");
+        if (resource != null) {
+            try {
+                URI uri = resource.toURI();
+                return Paths.get(uri + other.toString());
+            } catch (URISyntaxException e) {
+            }
+        }
+        // If all else fails, return null, but beware that this can cause PathAdjuster to NPE.
+        return null;
     }
 
     public void handle(HttpServerRequest req) {
