@@ -42,6 +42,16 @@ import org.vertx.java.core.sockjs.SockJSSocket;
 
 final class HandlerListener {
 
+    private static final String HTTP_SERVER_REQUEST_HANDLER_TYPE = "HttpServerRequestHandler";
+
+    private static final String SOCK_JS_HANDLER_TYPE = "SockJSHandler";
+
+    private static final String PROTOCOL_SERVICE_PROPERTY = "protocol";
+
+    private static final String SOCKJS_PROTOCOL = "sockjs";
+
+    private static final String[] NO_PROTOCOLS = new String[]{};
+
     private Vertx vertx;
 
     private BundleContext bundleContext;
@@ -96,8 +106,7 @@ final class HandlerListener {
             case "HttpServerRequestHandler": {
                 int portNumber = getHandlerPortNumber(handlerServiceReference);
                 if (portNumber != 0) {
-                    String usage = getHandlerUsage(handlerServiceReference);
-                    if ("SockJS".equals(usage)) {
+                    if (hasProtocol(handlerServiceReference, SOCKJS_PROTOCOL)) {
                         sockJSHandlerAdded(portNumber, handlerServiceReference, null);
                     } else {
                         @SuppressWarnings("unchecked")
@@ -124,30 +133,52 @@ final class HandlerListener {
         }
     }
 
+    private boolean hasProtocol(ServiceReference<?> handlerServiceReference, String protocol) {
+        Object handlerProtocols = handlerServiceReference.getProperty(PROTOCOL_SERVICE_PROPERTY);
+        String[] protocols = handlerProtocols instanceof String ? ((String) handlerProtocols).split(",") : NO_PROTOCOLS;
+        for (String p : protocols) {
+            if (protocol.equals(p)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /*
      * The following method is called when either a HTTP handler (for use with SockJS) or a SockJS handler has been
-     * added. Null is typically passed in as the other service reference. If there is a matching pair, then a suitable
-     * server is created and set up. If either or both are missing, then there is no change of state.
+     * added. Null must be passed in as the other service reference. If there is a matching pair of handlers, then a suitable
+     * server is created, both handlers are registered, and the server is set listening. If there is no SockJS handler yet, then
+     * a HTTP server is created and SockJS support added, the HTTP handler registered, and the server is set listening. If there
+     * is a SockJS handler but no HTTP handler yet, then no state change occurs as the HTTP handler needs to arrive before the
+     * HTTP server is set up.
      */
     @SuppressWarnings("unchecked")
     private void sockJSHandlerAdded(int portNumber, ServiceReference<Handler<?>> httpHandlerServiceReference,
         ServiceReference<Handler<?>> sockJSHandlerServiceReference) {
 
-        Set<ServiceReference<?>> sockJSHandlerRefs = findHandlerRefs(portNumber, "(type=SockJSHandler)");
+        Set<ServiceReference<?>> sockJSHandlerRefs = findHandlerRefs(portNumber, "(type=" + SOCK_JS_HANDLER_TYPE + ")");
         if (sockJSHandlerServiceReference != null) {
             sockJSHandlerRefs.add(sockJSHandlerServiceReference);
         }
 
-        Set<ServiceReference<?>> httpHandlerRefs = findHandlerRefs(portNumber, "(&(type=HttpServerRequestHandler)(usage=SockJS))");
+        Set<ServiceReference<?>> httpHandlerRefs = findHandlerRefs(portNumber, "(type=" + HTTP_SERVER_REQUEST_HANDLER_TYPE + ")");
+        Set<ServiceReference<?>> discardRefs = new HashSet<ServiceReference<?>>();
+        for (ServiceReference<?> httpHandlerRef : httpHandlerRefs) {
+            if (!hasProtocol(httpHandlerRef, SOCKJS_PROTOCOL)) {
+                discardRefs.add(httpHandlerRef);
+            }
+        }
+        httpHandlerRefs.removeAll(discardRefs);
         if (httpHandlerServiceReference != null) {
             httpHandlerRefs.add(httpHandlerServiceReference);
         }
 
-        if (sockJSHandlerRefs.size() == 1 && httpHandlerRefs.size() > 1) {
-            // Ambiguous HTTP handler
-        } else if (httpHandlerRefs.size() == 1 && sockJSHandlerRefs.size() > 1) {
-            // Ambiguous SockJS handler
-        } else if (httpHandlerRefs.size() == 1 && sockJSHandlerRefs.size() == 1) {
+        if (!httpHandlerRefs.isEmpty() && sockJSHandlerRefs.isEmpty()) {
+            /* Could create HTTP server, but then we would need to keep track of it, so 
+             * defer until fixing github issue 1. */
+        } else if (httpHandlerRefs.isEmpty() && !sockJSHandlerRefs.isEmpty()) {
+            // Defer until HTTP handler is available - see github issue 1.
+        } else if (!httpHandlerRefs.isEmpty() && !sockJSHandlerRefs.isEmpty()) {
             // One of each - proceed
             ServiceReference<?> sRef = sockJSHandlerRefs.iterator().next();
             ServiceReference<Handler<SockJSSocket>> sockJSRef = (ServiceReference<Handler<SockJSSocket>>) sRef;
@@ -189,11 +220,6 @@ final class HandlerListener {
             e.printStackTrace();
         }
         return result;
-    }
-
-    private String getHandlerUsage(ServiceReference<Handler<?>> handlerServiceReference) {
-        Object handlerUsage = handlerServiceReference.getProperty("usage");
-        return handlerUsage instanceof String ? (String) handlerUsage : null;
     }
 
     private void listen(HttpServer httpServer, int portNumber) {
@@ -279,7 +305,7 @@ final class HandlerListener {
 
         private void unregisterHandlerIfNecessary(ServiceReference<Handler<?>> serviceReference) {
             ServiceReference<Handler<?>> handlerServiceReference = (ServiceReference<Handler<?>>) serviceReference;
-            if ("HttpServerRequestHandler".equals(getHandlerType(handlerServiceReference))) {
+            if (HTTP_SERVER_REQUEST_HANDLER_TYPE.equals(getHandlerType(handlerServiceReference))) {
                 int portNumber = getHandlerPortNumber(handlerServiceReference);
                 if (portNumber != 0) {
                     deregisterHandler(portNumber);
