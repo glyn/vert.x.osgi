@@ -3,6 +3,7 @@
 	<name>org.vertx.osgi.sample.basic</name>
 	<comment></comment>
 	<projects>
+		<project>Virgo Kernel with Java 7 fix at localhost Server</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

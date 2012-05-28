@@ -15,5 +15,5 @@ Notes
 -----
 
 *   The bundling directory shows how the vert.x core JAR was turned into an OSGi bundle - see the README.
-*   The virgo-kernel-3.5.0.M04 directory contains an unzipped download of the Virgo kernel with vert.x core bundle in repository/usr along with netty and jackson dependencies. 
-*   The file virgo-kernel-3.5.0.M04/repository/ext/org.eclipse.gemini.blueprint.extender_1.0.0.RELEASE.jar was patched to work around [bug 379384](https://bugs.eclipse.org/bugs/show_bug.cgi?id=379384).
+*   The virgo-kernel-3.5.0.xxx directory contains an unzipped download of the Virgo kernel with vert.x core bundle in repository/usr along with netty and jackson dependencies. It contains the fix to [bug 370253](https://bugs.eclipse.org/bugs/show_bug.cgi?id=370253) which removes a minor Java 7 problem in the Virgo kernel.
+*   The file virgo-kernel-3.5.0.xxx/repository/ext/org.eclipse.gemini.blueprint.extender_1.0.0.RELEASE.jar was patched to work around [bug 379384](https://bugs.eclipse.org/bugs/show_bug.cgi?id=379384).
