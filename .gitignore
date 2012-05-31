@@ -1,4 +1,4 @@
-bin
+org.vertx.*/bin
 serviceability
 work
 stage
