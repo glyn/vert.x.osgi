@@ -1,0 +1,10 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.vertx.platform
+Bundle-Version: 1.0.0.final
+Import-Template: 
+ groovy.*;resolution:=optional;version=0,
+ org.codehaus.groovy.*;resolution:=optional;version=0,
+ org.jruby.*;version=0;resolution:=optional,
+ org.mozilla.*;version=0;resolution:=optional,
+ org.vertx.*;version="[1.0,2.0)"
+Export-Template: *;version="1.0.0.final"
