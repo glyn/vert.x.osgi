@@ -21,13 +21,22 @@
 
 package org.vertx.osgi.sample.mongo;
 
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.EventBus;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.json.JsonObject;
 
 public final class MongoClient {
 
-    public MongoClient(EventBus eventBus) {
-        System.out.println(eventBus + " eventBus injected");
-
+    public MongoClient(EventBus eventBus, String address) {
+        JsonObject msg = new JsonObject("{ \"action\": \"save\", \"collection\": \"vertx.osgi\", \"document\": {\"x\": \"y\"}}");
+        System.out.println("Sending message");
+        eventBus.send(address, msg, new Handler<Message<JsonObject>>(){
+            @Override
+            public void handle(Message<JsonObject> event) {
+                System.out.println("Message response " + event.body.toString());
+            }});
+        System.out.println("Message sent");
     }
 
 }

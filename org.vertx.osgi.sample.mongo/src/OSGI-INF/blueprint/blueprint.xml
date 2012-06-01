@@ -5,6 +5,7 @@
 	
     <bean class="org.vertx.osgi.sample.mongo.MongoClient">
     	<argument ref="eventBus"/>
+    	<argument type="java.lang.String"><value>vertx.mongopersistor</value></argument>
     </bean>
       
 </blueprint>
