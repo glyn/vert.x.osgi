@@ -3,7 +3,7 @@ vert.x.osgi
 
 Experiment running [vert.x](http://vertx.io/) as OSGi bundles in the Virgo kernel.
 
-The bundle project org.vertx.osgi listens for Handler instances being published in the OSGi service registry and registers these with a suitable server or the event bus (according to the service properties in the service registry). It also publishes the the event bus to the service registry.
+The bundle project org.vertx.osgi listens for Handler instances being published in the OSGi service registry and registers these with a suitable server (which it also creates) or the event bus (according to the service properties in the service registry). It also publishes the the event bus to the service registry.
 
 The bundle project org.vertx.osgi.sample.basic uses the OSGi Blueprint service to publish a HTTP request Handler to the service registry.
 
