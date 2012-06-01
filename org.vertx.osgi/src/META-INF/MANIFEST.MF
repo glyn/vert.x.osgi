@@ -6,6 +6,7 @@ Bundle-Description: Binding of vert.x to the OSGi service registry
 Import-Package: org.osgi.framework,
  org.osgi.util.tracker,
  org.vertx.java.core,
+ org.vertx.java.core.eventbus,
  org.vertx.java.core.http,
  org.vertx.java.core.impl,
  org.vertx.java.core.json,
@@ -14,4 +15,3 @@ Bundle-SymbolicName: org.vertx.osgi
 Export-Package: org.vertx.osgi;uses:="org.osgi.framework,org.osgi.util.tracker,org.vertx.java.core"
 Bundle-Version: 0.0.1
 Bundle-ManifestVersion: 2
-

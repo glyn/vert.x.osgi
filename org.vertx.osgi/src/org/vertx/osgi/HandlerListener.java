@@ -34,6 +34,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
@@ -45,10 +46,14 @@ final class HandlerListener {
     private static final String HTTP_SERVER_REQUEST_HANDLER_TYPE = "HttpServerRequestHandler";
 
     private static final String SOCK_JS_HANDLER_TYPE = "SockJSHandler";
+    
+    private static final String EVENT_BUS_HANDLER_TYPE = "EventBusHandler";
 
     private static final String PROTOCOL_SERVICE_PROPERTY = "protocol";
 
     private static final String SOCKJS_PROTOCOL = "sockjs";
+    
+    private static final String ADDRESS_SERVICE_PROPERTY = "address";
 
     private static final String[] NO_PROTOCOLS = new String[]{};
 
@@ -103,7 +108,7 @@ final class HandlerListener {
         @SuppressWarnings({ "unchecked" })
         ServiceReference<Handler<?>> handlerServiceReference = (ServiceReference<Handler<?>>) serviceReference;
         switch (getHandlerType(handlerServiceReference)) {
-            case "HttpServerRequestHandler": {
+            case HTTP_SERVER_REQUEST_HANDLER_TYPE: {
                 int portNumber = getHandlerPortNumber(handlerServiceReference);
                 if (portNumber != 0) {
                     if (hasProtocol(handlerServiceReference, SOCKJS_PROTOCOL)) {
@@ -121,16 +126,31 @@ final class HandlerListener {
                 }
             }
                 break;
-            case "SockJSHandler": {
+            case SOCK_JS_HANDLER_TYPE: {
                 int portNumber = getHandlerPortNumber(handlerServiceReference);
                 if (portNumber != 0) {
                     sockJSHandlerAdded(portNumber, null, handlerServiceReference);
                 }
             }
                 break;
+            case EVENT_BUS_HANDLER_TYPE: {
+                String address = getHandlerAddress(handlerServiceReference);
+                if (address != null) {
+                    eventBusHandlerAdded(address, handlerServiceReference);
+                }
+            }
+                break;
             default:
                 ;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void eventBusHandlerAdded(String address, ServiceReference<Handler<?>> handlerServiceReference) {
+        ServiceReference<Handler<Message<JsonObject>>> eventBusHandlerRef = (ServiceReference<Handler<Message<JsonObject>>>)(ServiceReference<?>) handlerServiceReference;
+        Handler<Message<JsonObject>> eventBusHandler = (Handler<Message<JsonObject>>) this.bundleContext.getService(eventBusHandlerRef);
+        this.vertx.eventBus().registerHandler(address, eventBusHandler);
+        
     }
 
     private boolean hasProtocol(ServiceReference<?> handlerServiceReference, String protocol) {
@@ -249,6 +269,11 @@ final class HandlerListener {
         return handlerPrefix instanceof String ? (String) handlerPrefix : null;
     }
 
+    private String getHandlerAddress(ServiceReference<Handler<?>> serviceReference) {
+        Object handlerAddress = serviceReference.getProperty(ADDRESS_SERVICE_PROPERTY);
+        return handlerAddress instanceof String ? (String) handlerAddress : null;
+    }
+
     private HttpServer registerHandler(int portNumber, Handler<HttpServerRequest> handler) {
         HttpServer httpServer = getHttpServer(portNumber);
         try {
@@ -284,6 +309,36 @@ final class HandlerListener {
     private HttpServer findHttpServer(int portNumber) {
         return servers.get(portNumber);
     }
+    
+    private void unregisterHandlerIfNecessary(ServiceReference<Handler<?>> serviceReference) {
+        ServiceReference<Handler<?>> handlerServiceReference = (ServiceReference<Handler<?>>) serviceReference;
+        switch (getHandlerType(handlerServiceReference)) {
+            case HTTP_SERVER_REQUEST_HANDLER_TYPE: {
+                int portNumber = getHandlerPortNumber(handlerServiceReference);
+                if (portNumber != 0) {
+                    deregisterHandler(portNumber);
+                }
+            }
+                break;
+            case SOCK_JS_HANDLER_TYPE: {
+                // XXX: need to deregister sockjs handler
+            }
+                break;
+            case EVENT_BUS_HANDLER_TYPE: {
+                String address = getHandlerAddress(handlerServiceReference);
+                if (address != null) {
+                    eventBusHandlerRemoved(address);
+                }
+            }
+                break;
+            default:
+                ;
+        }
+    }
+
+    private void eventBusHandlerRemoved(String address) {
+        this.vertx.eventBus().unregisterHandler(address);
+    }
 
     private final class HandlerTracker implements ServiceTrackerCustomizer<Handler<?>, Handler<?>> {
 
@@ -301,16 +356,6 @@ final class HandlerListener {
         @Override
         public void removedService(ServiceReference<Handler<?>> serviceReference, Handler<?> handler) {
             unregisterHandlerIfNecessary(serviceReference);
-        }
-
-        private void unregisterHandlerIfNecessary(ServiceReference<Handler<?>> serviceReference) {
-            ServiceReference<Handler<?>> handlerServiceReference = (ServiceReference<Handler<?>>) serviceReference;
-            if (HTTP_SERVER_REQUEST_HANDLER_TYPE.equals(getHandlerType(handlerServiceReference))) {
-                int portNumber = getHandlerPortNumber(handlerServiceReference);
-                if (portNumber != 0) {
-                    deregisterHandler(portNumber);
-                }
-            }
         }
 
     }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+	
+	<service ref="handler" interface="org.vertx.java.core.Handler">
+		<service-properties>
+		    <entry key="type" value="EventBusHandler"/>
+		    <entry key="address" value="vertx.mongopersistor"/>
+        </service-properties>
+	</service>
+	
+    <bean id="handler" class="org.vertx.osgi.mod.mongo.MongoPersistor" destroy-method="stop">
+	    <argument type="java.lang.String"><value>localhost</value></argument>
+   		<argument type="int"><value>27017</value></argument>
+    	<argument type="java.lang.String"><value>default_db</value></argument>
+    </bean>
+      
+</blueprint>
