@@ -30,11 +30,11 @@ public final class MongoClient {
 
     public MongoClient(EventBus eventBus, String address) {
         JsonObject msg = new JsonObject("{ \"action\": \"save\", \"collection\": \"vertx.osgi\", \"document\": {\"x\": \"y\"}}");
-        System.out.println("Sending message");
+        System.out.println("Sending message : " + msg.toMap().toString());
         eventBus.send(address, msg, new Handler<Message<JsonObject>>(){
             @Override
             public void handle(Message<JsonObject> event) {
-                System.out.println("Message response " + event.body.toString());
+                System.out.println("Message response " + event.body.toMap().toString());
             }});
         System.out.println("Message sent");
     }
