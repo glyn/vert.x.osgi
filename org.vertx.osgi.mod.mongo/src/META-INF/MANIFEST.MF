@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Export-Package: org.vertx.osgi.mods.mongo;uses:="com.mongodb,org.vertx
+ .java.busmods,org.vertx.java.core,org.vertx.java.core.eventbus,org.ve
+ rtx.java.core.json,org.vertx.java.deploy"
+Bundle-Version: 1.0.0
+Tool: Bundlor 1.1.0.M04
+Bundle-Name: Mongo
+Bundle-ManifestVersion: 2
+Import-Package: com.mongodb,com.mongodb.util,org.vertx.java.busmods,or
+ g.vertx.java.core,org.vertx.java.core.eventbus,org.vertx.java.core.js
+ on,org.vertx.java.core.logging,org.vertx.java.deploy
+Bundle-SymbolicName: org.vertx.osgi.mods.mongo
+
