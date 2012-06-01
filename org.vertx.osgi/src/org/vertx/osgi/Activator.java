@@ -23,17 +23,22 @@ package org.vertx.osgi;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.impl.DefaultVertxFactory;
 
 public class Activator implements BundleActivator {
 
     private HandlerListener handlerListener;
+    private ServiceRegistration<EventBus> eventBusServiceRegistration;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         DefaultVertxFactory vertxFactory = new DefaultVertxFactory();
         Vertx vertx = vertxFactory.createVertx();
+        EventBus eventBus = vertx.eventBus();
+        this.eventBusServiceRegistration = bundleContext.registerService(EventBus.class, eventBus, null);
         this.handlerListener = new HandlerListener();
         this.handlerListener.start(bundleContext, vertx);
     }
@@ -43,6 +48,10 @@ public class Activator implements BundleActivator {
         if (this.handlerListener != null) {
             this.handlerListener.stop();
             this.handlerListener = null;
+        }
+        if (this.eventBusServiceRegistration != null) {
+            this.eventBusServiceRegistration.unregister();
+            this.eventBusServiceRegistration = null;
         }
     }
 
