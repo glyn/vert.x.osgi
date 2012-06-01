@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Tool: Bundlor 1.1.0.M04
+Bundle-Name: Sample Mongo Client Bundle
+Bundle-SymbolicName: org.vertx.osgi.sample.mongo
+Import-Package: org.vertx.java.core.eventbus
+Bundle-Version: 1.0.0
+Bundle-ManifestVersion: 2

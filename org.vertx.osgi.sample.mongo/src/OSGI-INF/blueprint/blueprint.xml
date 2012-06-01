@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+	<reference id="eventBus" interface="org.vertx.java.core.eventbus.EventBus"/>
+	
+    <bean class="org.vertx.osgi.sample.mongo.MongoClient">
+    	<argument ref="eventBus"/>
+    </bean>
+      
+</blueprint>
