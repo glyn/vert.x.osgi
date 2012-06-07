@@ -49,9 +49,9 @@ public class MongoPersistor extends BusModBase implements Handler<Message<JsonOb
 
     private final String dbName;
 
-    private Mongo mongo;
+    private final Mongo mongo;
 
-    private DB db;
+    private final DB db;
 
     public MongoPersistor(String host, int port, String dbName) throws UnknownHostException, MongoException {
         this.host = host;
