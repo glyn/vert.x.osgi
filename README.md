@@ -11,7 +11,7 @@ The bundle project org.vertx.osgi.sample.sockjs uses the OSGi Blueprint service 
 
 The bundle project org.vertx.osgi.mod.mongodb is the handler part of the mongo-persistor busmod.
 
-The bundle project org.vertx.osgi.sample.mongo uses the event bus (via the service registry) to send a message to the mongo-persistor. 
+The bundle project org.vertx.osgi.sample.mongo uses the event bus (obtained from the service registry) to send a message to the mongo-persistor. 
 
 The source code provided in this project is dual-licensed under the Eclipse Public License 1.0 and the Apache License, Version 2.0.
 
