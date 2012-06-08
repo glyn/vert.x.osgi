@@ -1,6 +1,7 @@
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.vertx.platform
 Bundle-Version: 1.0.0.final
+Bundle-Name: vert.x Platform
 Import-Template: 
  groovy.*;resolution:=optional;version=0,
  org.codehaus.groovy.*;resolution:=optional;version=0,

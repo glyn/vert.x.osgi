@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Tool: Bundlor 1.1.0.M04
-Bundle-Name: SockJS
+Bundle-Name: Sample SockJS Verticle
 Bundle-SymbolicName: org.vertx.osgi.sample.sockjs
 Import-Package: org.vertx.java.core,
  org.vertx.java.core.buffer,

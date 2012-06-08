@@ -1,7 +1,6 @@
-Instructions for creating an OSGi bundle from vert.x-core.jar
+Instructions for creating OSGi bundles from vert.x-core.jar and vert.x-platform.jar on UNIX.
 
-Run bundling/bundlor-1.1.0.M04/bin/bundlor.sh along the following lines:
+1. Ensure the directory containing this file is the current directory.
+2. Run:
 
-bundlor.sh -i vert.x-1.0.final/lib/jars/vert.x-core.jar -m ./vertx.core.mf -o ./vert.x-core-1.0.0.final.jar
-
-Note: You'll need to download vert.x 1.0-final. The above command needs absolute paths to be passed in.
+$ ./bundle.sh

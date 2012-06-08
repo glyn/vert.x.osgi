@@ -1,6 +1,7 @@
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.vertx.core
 Bundle-Version: 1.0.0.final
+Bundle-Name: vert.x Core
 Import-Template: 
  org.jboss.netty.*;version="[3.4.2.Final,4.0)",
  org.codehaus.jackson.*;version="[1.9.4,2.0)",

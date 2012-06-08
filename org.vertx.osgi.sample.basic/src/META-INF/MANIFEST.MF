@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-Version: 1.0.0
-Bundle-Name: Basic
+Bundle-Name: Sample Basic HTTP Verticle
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.vertx.osgi.sample.basic
 Import-Package: org.vertx.java.core,org.vertx.java.core.impl,org.vertx.java.core.http
