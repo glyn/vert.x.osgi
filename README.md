@@ -15,6 +15,8 @@ The bundle project org.vertx.osgi.sample.mongo uses the event bus (obtained from
 
 The source code provided in this project is dual-licensed under the Eclipse Public License 1.0 and the Apache License, Version 2.0.
 
+Binary bundles, ready to use on the OSGi framework of your choice, are provided in the bundles directory.
+
 Notes
 -----
 
