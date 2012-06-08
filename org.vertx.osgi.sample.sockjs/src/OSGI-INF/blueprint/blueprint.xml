@@ -4,7 +4,7 @@
 	<service ref="httpHandler" interface="org.vertx.java.core.Handler">
 		<service-properties>
 		    <entry key="type" value="HttpServerRequestHandler"/>
-        	<entry key="port" value="8090"/>
+        	<entry key="port" value="8091"/>
         	<entry key="protocol" value="http,sockjs"/>
         </service-properties>
 	</service>
@@ -15,7 +15,7 @@
 		<service-properties>
 		    <entry key="type" value="SockJSHandler"/>
 		    <entry key="prefix" value="/testapp"/>
-        	<entry key="port" value="8090"/>
+        	<entry key="port" value="8091"/>
         </service-properties>
 	</service>
 	
