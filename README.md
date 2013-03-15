@@ -1,7 +1,25 @@
 vert.x.osgi
 ===========
 
-Experiment running [vert.x](http://vertx.io/) as OSGi bundles in the Virgo kernel.
+Experiment running [vert.x](http://vertx.io/) as OSGi bundles in the Virgo kernel. See [this blog](http://underlap.blogspot.co.uk/2012/06/osgi-case-study-modular-vertx.html) for details.
+
+Getting Started
+---------------
+
+0. Read the blog above
+
+0. Clone this [git repository](https://github.com/glyn/vert.x.osgi)
+
+0. Ensure you have Java 7 with JAVA_HOME set appropriately (on the Mac, I did this: `export JAVA7_HOME="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/"` and then `export JAVA_HOME=$JAVA7_HOME; export PATH=$JAVA7_HOME/bin:$PATH`)
+
+0. cd to the `virgo-kernel-3.6.0.BUILD-20121001132112` directory of the github clone
+
+0. Start Virgo by issuing `bin/startup.sh -clean` on *ix or `bin\startup.bat -clean` on Windows
+
+0. After it has started, browse to [`http://localhost:8091/`](http://localhost:8091/) enter some text in the box and click the button
+
+Details
+-------
 
 The bundle project org.vertx.osgi listens for Handler instances being published in the OSGi service registry and registers these with a suitable server (which it also creates) or the event bus (according to the service properties in the service registry). It also publishes the the event bus to the service registry.
 
