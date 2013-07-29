@@ -1,6 +1,22 @@
+#
+#
+#
 org.vertx.*/bin
 serviceability
 work
 stage
 *~
 
+#
+#
+#
+.gradle
+.cache
+build
+
+#
+#
+#
+.project
+.classpaht
+.settings
