@@ -1,0 +1,6 @@
+
+dependencies {
+	runtime ":vert.x-core-1.0.0.final"
+	runtime ":vert.x-platform-1.0.0.final"
+	runtime ":mongo"
+}
